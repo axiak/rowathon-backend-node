@@ -1,0 +1,13 @@
+{
+    "name": "rowathon-backend"
+  , "description":"The backend for CrunchTime rowathon"
+  , "version": "0.0.1"
+  , "private": true
+  , "dependencies": {
+      "express": "2.4.6"
+    , "socket.io": ">=0.8.4"
+    , "mysql": ">=0.9.4"
+    , "orm": ">=0.1.4"
+    , "bcrypt": ">=0.3.1"
+  }
+}
