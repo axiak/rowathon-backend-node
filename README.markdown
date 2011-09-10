@@ -15,7 +15,7 @@ the package.json file will define what dependencies it will pull.
 
 After installing everything, run by typing:
 
-    coffee app.coffee
+    coffee start.coffee
 
 This assumes that you have a mysql server with the password specified in
 models.coffee.
