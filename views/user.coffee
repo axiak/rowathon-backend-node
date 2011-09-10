@@ -1,18 +1,20 @@
 bcrypt = require('bcrypt')
 models = require('../models/models.coffee')
 
+HASH_STRENGTH = 10
+
 class UserView
 
   constructor: () ->
 
   login: (req, res) ->
-    if (!req.param('password'))
+    if not req.param('password')?
       res.send(403)
       return
     user = models.User.find email: req.param('email'), (result) ->
-      if (result)
-        bcrypt.compare req.param('password'), result[0].password, (err, result) ->
-          if (result)
+      if result
+        bcrypt.compare req.param('password'), result[0].password, (err, matches) ->
+          if matches
             req.session.user = result[0]
             res.send(200)
           else
@@ -23,7 +25,7 @@ class UserView
 
   getUser: (req, res) ->
     user = models.User.find email: req.param('email'), (result) ->
-      res.json(if (result)
+      res.json(if result
         delete result[0].password
         delete result[0]._dataHash
         result[0]
@@ -37,7 +39,28 @@ class UserView
     res.json "heh"
 
   register: (req, res) ->
-    res.json "heh"
+    email = req.param('email')
+    password = req.param('password')
+
+    if not (email? and password?)
+      res.send(401)
+      return
+
+    date_joined = new Date()
+    bcrypt.gen_salt HASH_STRENGTH, (err, salt) ->
+      throw new Error("Password error: #{err}") if err?
+      bcrypt.encrypt password, salt, (err, hash) ->
+        throw new Error("Password error: #{err}") if err?
+        newUser = new models.User(
+          email: email,
+          password: hash,
+          date_joined: date_joined,
+          activation_token: ""
+        )
+        newUser.save (err, newUserSaved) ->
+          throw new Error("Could not save user: #{err}") if err?
+          delete newUserSaved.password
+          res.json newUserSaved
 
   logout: (req, res) ->
     res.json "boo"
