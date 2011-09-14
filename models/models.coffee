@@ -5,7 +5,7 @@ module.exports =
   Company: null
 
 
-orm.connect("mysql://rowathon:aTeihi8@mike@axiak.net/rowathon", (success, db) ->
+orm.connect("mysql://rowathon:aTeihi8@mike.axiak.net/rowathon", (success, db) ->
 
   console.log(success)
   console.log("Error with db") if not success
