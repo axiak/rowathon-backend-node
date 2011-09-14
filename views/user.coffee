@@ -1,4 +1,4 @@
-bcrypt = require('bcrypt')
+bcrypt = require('../lib/myhash.coffee')
 models = require('../models/models.coffee')
 HASH_STRENGTH = 10
 
