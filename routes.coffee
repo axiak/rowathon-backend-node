@@ -3,7 +3,7 @@ UserView = require('./views/user.coffee')
 
 app.put "/user/:email/login/", UserView.login
 app.put "/user/:email/change-password/", UserView.changePassword
-app.post "/user/:email/register/", UserView.register
+app.get "/user/:email/register/", UserView.register
 app.put "/user/:email/logout", UserView.logout
 app.get "/user/:email/", UserView.getUser
 

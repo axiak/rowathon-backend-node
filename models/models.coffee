@@ -5,9 +5,14 @@ module.exports =
   Company: null
 
 
-orm.connect("mysql://rowathon:aTeihi8@localhost/rowathon", (success, db) ->
+orm.connect("mysql://rowathon:aTeihi8@mike@axiak.net/rowathon", (success, db) ->
+
+  console.log(success)
   console.log("Error with db") if not success
-  throw new Error("Failure to connect to db") if not success
+  if not success
+    colors = require("colors")
+    console.error("ERROR ".red.bold + "Failure to connect to the db.")
+    throw new Error("Failure to connect to db") 
 
   User = module.exports.User = db.define("users",
     email:

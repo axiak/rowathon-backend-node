@@ -22,10 +22,10 @@ else
 
   module.exports =
     gen_salt: (strength, callback) ->
-      callback(false, "")
+      callback(undefined, "")
 
     encrypt: (password, salt, callback) ->
-      callback(false, crypto.createHash("sha256").update(password).digest("hex"))
+      callback(undefined, crypto.createHash("sha256").update(password).digest("hex"))
 
     compare: (password1, hashed, callback) ->
-      callback(false, module.exports.encrypt(password1) == hashed)
+      callback(undefined, module.exports.encrypt(password1) == hashed)
