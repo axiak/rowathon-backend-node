@@ -1,7 +1,7 @@
 app = require('./app.coffee')
 routes = require('./routes.coffee')
 
-app.listen 3000
+app.listen process.env.C9_PORT ? 3000
 
 io = app.socketIo = require('socket.io').listen app, transports: ['xhr-polling']
 
