@@ -1,5 +1,4 @@
 app = require("./app.coffee")
-
 UserView = require('./views/user.coffee')
 
 app.put "/user/:email/login/", UserView.login

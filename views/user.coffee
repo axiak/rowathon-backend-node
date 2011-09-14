@@ -1,6 +1,5 @@
 bcrypt = require('bcrypt')
 models = require('../models/models.coffee')
-
 HASH_STRENGTH = 10
 
 class UserView
@@ -21,7 +20,6 @@ class UserView
             res.send(403)
       else
         res.send(403)
-
 
   getUser: (req, res) ->
     user = models.User.find email: req.param('email'), (result) ->
@@ -64,7 +62,6 @@ class UserView
 
   logout: (req, res) ->
     res.json "boo"
-
 
 module.exports = new UserView
 

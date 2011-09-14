@@ -1,10 +1,14 @@
 assert = require('assert')
 app = require('../app.coffee')
+_ = require('underscore')
+
 routes = require('../routes.coffee')
+
+numTests = 3
 
 module.exports =
 
-  'user registration': (done) ->
+  setupAll: (done) ->
     assert.response(app, {
       url: "/user/miketest@axiak.net/register/"
       method: "POST"
@@ -13,29 +17,48 @@ module.exports =
         'content-type': 'application/x-www-form-urlencoded'
     }, {
       status: 200
-    })
+    }, (res) ->
+      done()
+    )
 
-    assert.response(app, {
-      url: "/user/miketest@axiak.net/login/"
-      method: "PUT"
-      data: "password=abctest"
-      headers:
-        'content-type': 'application/x-www-form-urlencoded'
-    }, {
-      status: 200
-    })
+  teardownAll: (done) ->
+    numTests -= 1
+    if not numTests
+      models = require('../models/models.coffee')
+      models.User.find email: "miketest@axiak.net", (results) ->
+        if results
+            user.remove(() ->) for user in results
     done(() ->)
 
 
-  'user bad login': (done) ->
-    assert.response(app, {
-      url: "/user/miketest@axiak.net/login/"
-      method: "PUT"
-      data: "password=incorrect"
-      headers:
-        'content-type': 'application/x-www-form-urlencoded'
-    }, {
-      status: 403
-    })
-    done(() ->)
+  'userregistration': (done) ->
+    module.exports.setupAll(() ->
+      assert.response(app, {
+        url: "/user/miketest@axiak.net/login/",
+        method: "PUT",
+        data: "password=abctest",
+        headers:
+          'content-type': 'application/x-www-form-urlencoded'
+      }, {
+        status: 200
+      }, () ->
+        module.exports.teardownAll(done)
+      )
+    )
+
+
+  'userbadlogin': (done) ->
+    module.exports.setupAll(() ->
+      assert.response(app, {
+        url: "/user/miketest@axiak.net/login/"
+        method: "PUT"
+        data: "password=incorrect"
+        headers:
+          'content-type': 'application/x-www-form-urlencoded'
+      }, {
+        status: 403
+      }, () ->
+        module.exports.teardownAll(done)
+      )
+    )
 

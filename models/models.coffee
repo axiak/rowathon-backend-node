@@ -1,9 +1,13 @@
 orm = require('orm')
 
-module.exports = {}
+module.exports =
+  User: null
+  Company: null
+
 
 orm.connect("mysql://rowathon:aTeihi8@localhost/rowathon", (success, db) ->
-  throw "Failure to connect to db" if (!success)
+  console.log("Error with db") if not success
+  throw new Error("Failure to connect to db") if not success
 
   User = module.exports.User = db.define("users",
     email:
@@ -27,6 +31,4 @@ orm.connect("mysql://rowathon:aTeihi8@localhost/rowathon", (success, db) ->
   Company.sync()
   User.sync()
 
-
 )
-
