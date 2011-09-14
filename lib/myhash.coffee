@@ -28,4 +28,6 @@ else
       callback(undefined, crypto.createHash("sha256").update(password).digest("hex"))
 
     compare: (password1, hashed, callback) ->
-      callback(undefined, module.exports.encrypt(password1) == hashed)
+      module.exports.encrypt password1, '', (err, realHash) ->
+        callback(undefined, realHash == hashed)
+

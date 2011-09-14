@@ -1,44 +1,74 @@
-bcrypt = require('../lib/myhash.coffee')
-models = require('../models/models.coffee')
+_ = require('underscore')
+
+bcrypt = require("../lib/myhash.coffee")
+models = require("../models/models.coffee")
 HASH_STRENGTH = 10
+
+requireLogin = (viewFunction) ->
+  (req, res) ->
+    if req.session.user?
+      viewFunction(req, res)
+    else
+      res.send(403)
 
 class UserView
 
   constructor: () ->
 
-  login: (req, res) ->
-    if not req.param('password')?
+  login: (req, res) =>
+    if not req.param("password")?
       res.send(403)
       return
-    user = models.User.find email: req.param('email'), (result) ->
+    req.session.user = undefined
+    user = models.User.find email: req.param("email"), (result) =>
       if result
-        bcrypt.compare req.param('password'), result[0].password, (err, matches) ->
+        bcrypt.compare req.param("password"), result[0].password, (err, matches) =>
           if matches
             req.session.user = result[0]
-            res.send(200)
+            UserView._sendUser(res, result[0])
           else
             res.send(403)
       else
         res.send(403)
 
-  getUser: (req, res) ->
-    user = models.User.find email: req.param('email'), (result) ->
-      res.json(if result
-        delete result[0].password
-        delete result[0]._dataHash
-        result[0]
+  getUser: requireLogin (req, res) =>
+    user = models.User.find email: req.param("email"), (result) =>
+      if result
+        UserView._sendUser(res, result[0])
       else
-        null)
+        res.json(null)
 
 
-  changePassword: (req, res) ->
+  changePassword: requireLogin (req, res) =>
+    oldPassword = req.param("oldPassword")
+    newPassword = req.param("newPassword")
+
+    if not (oldPassword? and newPassword?)
+      res.send(401)
+      return
+
     sessionUser = req.session.user
-    console.log(sessionUser)
-    res.json "heh"
+
+    bcrypt.compare oldPassword, sessionUser.password, (err, matches) =>
+      if matches
+        bcrypt.gen_salt HASH_STRENGTH, (err, salt) ->
+          return res.send(500) if err?
+          bcrypt.encrypt newPassword, salt, (err, hash) ->
+            return res.send(500) if err?
+            models.User.find id: sessionUser.id, (result) ->
+              if result
+                result[0].password = hash
+                result[0].save()
+                res.send(200)
+              else
+                return res.send(500)
+      else
+        res.send(401)
+
 
   register: (req, res) ->
-    email = req.param('email')
-    password = req.param('password')
+    email = req.param("email")
+    password = req.param("password")
 
     if not (email? and password?)
       res.send(401)
@@ -60,8 +90,20 @@ class UserView
           delete newUserSaved.password
           res.json newUserSaved
 
-  logout: (req, res) ->
-    res.json "boo"
+  logout: requireLogin (req, res) =>
+    delete req.session.user
+    res.send(200)
+
+  @_sendUser: (res, user) =>
+    if user?
+      user = _.clone(user)
+      delete user.password
+      delete user._dataHash
+      res.json(user)
+    else
+      res.json(null)
+
+  @requireLogin = requireLogin
 
 module.exports = new UserView
 
