@@ -7,7 +7,7 @@ try
   bcrypt = require('bcrypt')
 catch error
   colors = require("colors")
-  console.warn("WARNING".red.bold + " Could not import bcrypt, falling back to sha256.")
+  console.warn("warning  - ".red.bold + "Could not import bcrypt, falling back to sha256.")
 
 if bcrypt
   module.exports = bcrypt
