@@ -2,20 +2,15 @@ _ = require('underscore')
 
 bcrypt = require("../lib/myhash.coffee")
 models = require("../models/models.coffee")
+errors = require("../errors.coffee")
 HASH_STRENGTH = 10
 
-requireLogin = (viewFunction) ->
-  (req, res) ->
-    if req.session.user?
-      viewFunction(req, res)
-    else
-      res.send(403)
 
 class UserView
 
   constructor: () ->
 
-  login: (req, res) =>
+  login: (req, res) ->
     if not req.param("password")?
       res.send(403)
       return
@@ -31,7 +26,7 @@ class UserView
       else
         res.send(403)
 
-  getUser: requireLogin (req, res) =>
+  getUser: (req, res) ->
     user = models.User.find email: req.param("email"), (result) =>
       if result
         UserView._sendUser(res, result[0])
@@ -39,7 +34,7 @@ class UserView
         res.json(null)
 
 
-  changePassword: requireLogin (req, res) =>
+  changePassword: (req, res) ->
     oldPassword = req.param("oldPassword")
     newPassword = req.param("newPassword")
 
@@ -90,11 +85,11 @@ class UserView
           delete newUserSaved.password
           res.json newUserSaved
 
-  logout: requireLogin (req, res) =>
+  logout: (req, res) ->
     delete req.session.user
     res.send(200)
 
-  @_sendUser: (res, user) =>
+  @_sendUser: (res, user) ->
     if user?
       user = _.clone(user)
       delete user.password
@@ -103,7 +98,12 @@ class UserView
     else
       res.json(null)
 
-  @requireLogin = requireLogin
+  requireLogin: (req, res, next) ->
+    if req.session.user?
+      next()
+    else
+      next(new errors.Forbidden())
+
 
 module.exports = new UserView
 
