@@ -16,8 +16,8 @@ else
   stringEquals = (a, b) ->
     return false if a.length != b.length
     result = 0
-    _.each _.zip(a, b), (pair) ->
-      result |= pair[0] ^ pair[1]
+    for i in [0..a.length]
+      result |= a.charCodeAt(i) ^ b.charCodeAt(i)
     return result == 0
 
   module.exports =
@@ -29,5 +29,5 @@ else
 
     compare: (password1, hashed, callback) ->
       module.exports.encrypt password1, '', (err, realHash) ->
-        callback(undefined, realHash == hashed)
+        callback(undefined, stringEquals(realHash, hashed))
 
